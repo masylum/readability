@@ -1,37 +1,42 @@
 {
-  "name": "@mozilla/readability",
-  "version": "0.5.0",
-  "description": "A standalone version of the readability library used for Firefox Reader View.",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "scripts": {
-    "lint": "eslint .",
-    "test": "mocha test/test-*.js",
-    "generate-testcase": "node test/generate-testcase.js",
-    "release": "release-it"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mozilla/readability"
-  },
-  "author": "",
-  "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/mozilla/readability/issues"
-  },
-  "engines": {
-    "node": ">=14.0.0"
-  },
-  "homepage": "https://github.com/mozilla/readability",
-  "devDependencies": {
-    "@release-it/keep-a-changelog": "5.0.0",
-    "chai": "4.3.7",
-    "eslint": "8.27.0",
-    "htmltidy2": "1.0.0",
-    "js-beautify": "1.14.7",
-    "jsdom": "20.0.2",
-    "mocha": "10.1.0",
-    "release-it": "17.0.1",
-    "sinon": "14.0.2"
-  }
+    "name": "readability-cheerio",
+    "version": "0.0.1",
+    "description": "A fork of readability to be used with cheerio.",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "type": "module",
+    "scripts": {
+        "lint": "eslint .",
+        "test": "vitest",
+        "generate-testcase": "node test/generate-testcase.js",
+        "release": "release-it",
+        "build": "tsup src/index.ts --format cjs,esm --dts"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mozilla/readability"
+    },
+    "author": "",
+    "license": "Apache-2.0",
+    "bugs": {
+        "url": "https://github.com/mozilla/readability/issues"
+    },
+    "engines": {
+        "node": ">=14.0.0"
+    },
+    "homepage": "https://github.com/mozilla/readability",
+    "devDependencies": {
+        "@release-it/keep-a-changelog": "5.0.0",
+        "@types/js-beautify": "^1.14.3",
+        "@types/node": "^20.14.9",
+        "eslint": "8.27.0",
+        "htmltidy2": "1.0.0",
+        "js-beautify": "1.14.7",
+        "release-it": "17.0.1",
+        "typescript": "^5.5.2",
+        "vitest": "^1.6.0"
+    },
+    "dependencies": {
+        "cheerio": "^1.0.0-rc.12"
+    }
 }
