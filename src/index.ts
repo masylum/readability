@@ -52,6 +52,7 @@ import {
     wordCount,
     isElementWithoutContent,
 } from './textUtils.js'
+import { simplifyDivs } from './utils/simplifyDivs.js'
 
 const FLAG_STRIP_UNLIKELYS = 0x1
 const FLAG_WEIGHT_CLASSES = 0x2
@@ -536,30 +537,7 @@ export class Readability {
                 }
 
                 if (node.tagName === 'div') {
-                    let $p: Cheerio<Element> | null = null
-                    let childNode = node.firstChild
-                    while (childNode) {
-                        let nextSibling = childNode.nextSibling
-                        if (isPhrasingContent(childNode)) {
-                            if ($p !== null) {
-                                $p.append(childNode)
-                            } else if (!isWhitespace($(childNode))) {
-                                $p = $('<p></p>') as Cheerio<Element>
-                                $(childNode).replaceWith($p)
-                                $p.append(childNode)
-                            }
-                        } else if ($p !== null) {
-                            const $lastChild = $p.last()
-                            while (
-                                $lastChild.length &&
-                                isWhitespace($lastChild)
-                            ) {
-                                $lastChild.remove()
-                            }
-                            $p = null
-                        }
-                        childNode = nextSibling
-                    }
+                    simplifyDivs($, node)
 
                     // Sites like http://mobile.slate.com encloses each paragraph with a DIV
                     // element. DIVs with only a P element inside and no text content can be
