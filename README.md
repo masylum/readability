@@ -11,8 +11,9 @@ The goals of this fork are the following:
     implementation.
 -   _Performance_: For non-native runtimes, we rely in JSDOM to simulate native DOM APIs. JSDOM
     does a lot besides parsing HTML, and is pretty heavy and slow. **cheerio** instead is lightweight
-    and fast. You can even use [htmlparser2](https://github.com/fb55/htmlparser2) if you need more
-    performance.
+    and fast. Overall, I've experienced that this fork performs 6-8x times faster and consumes a lot
+    less memory than the original one. You can even use [htmlparser2](https://github.com/fb55/htmlparser2)
+    if you need more performance.
 -   _Compatibility_: In order to avoid using JSOM, you could use readability's [JSDOMParser](https://github.com/mozilla/readability/blob/main/JSDOMParser.js),
     [Happy Dom](https://github.com/capricorn86/happy-dom) or [Linkedom](https://github.com/WebReflection/linkedom).
     I had compatibility problems using those alternative implementations, but **cheerio** worked flawlesly even

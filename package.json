@@ -1,30 +1,26 @@
 {
     "name": "readability-cheerio",
     "version": "0.0.1",
-    "description": "A fork of readability to be used with cheerio.",
+    "description": "A cheerio port of readability.js",
     "main": "index.js",
-    "types": "index.d.ts",
+    "types": "dist/index.d.ts",
     "type": "module",
     "scripts": {
         "lint": "eslint .",
         "test": "vitest",
         "generate-testcase": "node test/generate-testcase.js",
-        "release": "release-it",
         "build": "tsup src/index.ts --format cjs,esm --dts"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/mozilla/readability"
+        "url": "https://github.com/masylum/readability-cheerio"
     },
-    "author": "",
+    "author": "Pao Ramen",
     "license": "Apache-2.0",
-    "bugs": {
-        "url": "https://github.com/mozilla/readability/issues"
-    },
     "engines": {
         "node": ">=14.0.0"
     },
-    "homepage": "https://github.com/mozilla/readability",
+    "homepage": "https://github.com/masylum/readability-cheerio",
     "devDependencies": {
         "@release-it/keep-a-changelog": "5.0.0",
         "@types/js-beautify": "^1.14.3",
