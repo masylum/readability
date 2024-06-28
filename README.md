@@ -1,4 +1,4 @@
-# cheer-reader
+![cheer-reader](https://github.com/masylum/readability/blob/main/img/cheer-reader.png?raw=true)
 
 This library is a port of the [readability.js](https://github.com/mozilla/readability) library
 that uses [cheerio](https://cheerio.js.org) instead of native DOM APIs.
