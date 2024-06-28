@@ -1,9 +1,9 @@
 # readability-cheerio
 
-This library is a fork of the [readability.js](https://github.com/mozilla/readability) library
+This library is a port of the [readability.js](https://github.com/mozilla/readability) library
 that uses [cheerio](https://cheerio.js.org) instead of native DOM APIs.
 
-The goals of this fork are the following:
+The goals of this port are the following:
 
 -   _Portability_: Most runtimes and Web Workers don't support DOM apis.
     By using cheerio, we ensure that you can run readability wherever you want.
@@ -11,7 +11,7 @@ The goals of this fork are the following:
     implementation.
 -   _Performance_: For non-native runtimes, we rely in JSDOM to simulate native DOM APIs. JSDOM
     does a lot besides parsing HTML, and is pretty heavy and slow. **cheerio** instead is lightweight
-    and fast. Overall, I've experienced that this fork performs 6-8x times faster and consumes a lot
+    and fast. Overall, I've experienced that this port performs 6-8x times faster and consumes a lot
     less memory than the original one. You can even use [htmlparser2](https://github.com/fb55/htmlparser2)
     if you need more performance.
 -   _Compatibility_: In order to avoid using JSOM, you could use readability's [JSDOMParser](https://github.com/mozilla/readability/blob/main/JSDOMParser.js),
