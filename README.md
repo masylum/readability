@@ -1,4 +1,4 @@
-# readability-cheerio
+# cheer-reader
 
 This library is a port of the [readability.js](https://github.com/mozilla/readability) library
 that uses [cheerio](https://cheerio.js.org) instead of native DOM APIs.

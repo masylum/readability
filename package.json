@@ -1,5 +1,5 @@
 {
-    "name": "readability-cheerio",
+    "name": "cheer-reader",
     "version": "0.0.1",
     "description": "A cheerio port of readability.js",
     "main": "index.js",
@@ -15,14 +15,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/masylum/readability-cheerio"
+        "url": "https://github.com/masylum/cheer-reader"
     },
     "author": "Pao Ramen",
     "license": "Apache-2.0",
     "engines": {
         "node": ">=14.0.0"
     },
-    "homepage": "https://github.com/masylum/readability-cheerio",
+    "homepage": "https://github.com/masylum/cheer-reader",
     "devDependencies": {
         "@eslint/js": "^9.5.0",
         "@release-it/keep-a-changelog": "5.0.0",
