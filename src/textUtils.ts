@@ -39,7 +39,7 @@ export function getLinkDensity($: CheerioAPI, $element: Cheerio<Element>) {
  **/
 export function getInnerText(
     $element: Cheerio<AnyNode>,
-    normalizeSpaces: boolean = true
+    normalizeSpaces: boolean = true,
 ) {
     const textContent = $element.text().trim()
 

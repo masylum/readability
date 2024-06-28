@@ -7,7 +7,7 @@ const alwaysTrue = () => true
 
 export function removeNodes(
     $coll: Cheerio<Element>,
-    fn: (el: Cheerio<Element>) => boolean = alwaysTrue
+    fn: (el: Cheerio<Element>) => boolean = alwaysTrue,
 ) {
     for (let i = $coll.length - 1; i >= 0; i--) {
         const $node = $coll.eq(i)
@@ -53,7 +53,7 @@ export function nextNode(node: AnyNode | null) {
  */
 export function getNextNode(
     $node: Cheerio<AnyNode>,
-    ignoreSelfAndKids: boolean = false
+    ignoreSelfAndKids: boolean = false,
 ) {
     // First check for kids if those aren't being ignored
     const $firstChild = $node.children().first()
@@ -88,9 +88,9 @@ export function removeAndGetNext($node: Cheerio<Element>) {
  **/
 export function cleanMatchedNodes(
     $el: Cheerio<Element>,
-    filter: (el: Cheerio<Element>) => boolean
+    filter: (el: Cheerio<Element>) => boolean,
 ) {
-    let $endOfSearchMarkerNode = getNextNode($el, true)
+    const $endOfSearchMarkerNode = getNextNode($el, true)
     let $next = getNextNode($el)
 
     while ($next && $next.length && $next !== $endOfSearchMarkerNode) {

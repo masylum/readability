@@ -48,7 +48,6 @@ import {
     textSimilarity,
     getInnerText,
     isValidByline,
-    isWhitespace,
     wordCount,
     isElementWithoutContent,
 } from './textUtils.js'
@@ -99,7 +98,7 @@ type Options = {
     baseURI?: string
 }
 
-type Metadata = {
+export type Metadata = {
     title?: string | null
     byline?: string | null
     excerpt?: string | null
@@ -153,7 +152,7 @@ export class Readability {
     constructor($: CheerioAPI, options: Partial<Options> = {}) {
         if (!$) {
             throw new Error(
-                'First argument to Readability constructor is mandatory.'
+                'First argument to Readability constructor is mandatory.',
             )
         }
         this.$ = $
@@ -268,16 +267,16 @@ export class Readability {
         let titleHadHierarchicalSeparators = false
 
         // If there's a separator in the title, first remove the final part
-        if (/ [\|\-\\\/>»] /.test(curTitle)) {
-            titleHadHierarchicalSeparators = / [\\\/>»] /.test(curTitle)
-            curTitle = origTitle.replace(/(.*)[\|\-\\\/>»] .*/gi, '$1')
+        if (/ [|\-\\/>»] /.test(curTitle)) {
+            titleHadHierarchicalSeparators = / [\\/>»] /.test(curTitle)
+            curTitle = origTitle.replace(/(.*)[|\-\\/>»] .*/gi, '$1')
 
             // If the resulting title is too short (3 words or fewer), remove
             // the first part instead:
             if (wordCount(curTitle) < 3)
                 curTitle = origTitle.replace(
-                    /[^\|\-\\\/>»]*[\|\-\\\/>»](.*)/gi,
-                    '$1'
+                    /[^|\-\\/>»]*[|\-\\/>»](.*)/gi,
+                    '$1',
                 )
         } else if (curTitle.indexOf(': ') !== -1) {
             // Check if we have an heading containing this exact string, so we
@@ -317,7 +316,7 @@ export class Readability {
             curTitleWordCount <= 4 &&
             (!titleHadHierarchicalSeparators ||
                 curTitleWordCount !=
-                    wordCount(origTitle.replace(/[\|\-\\\/>»]+/g, '')) - 1)
+                    wordCount(origTitle.replace(/[|\-\\/>»]+/g, '')) - 1)
         ) {
             curTitle = origTitle
         }
@@ -346,7 +345,7 @@ export class Readability {
 
         // Clean out elements with little content that have "share" in their id/class combinations from final top candidates,
         // which means we don't remove the top candidates even they have "share".
-        let shareElementThreshold = DEFAULT_CHAR_THRESHOLD
+        const shareElementThreshold = DEFAULT_CHAR_THRESHOLD
 
         $articleContent.children().each((_, childNode) => {
             cleanMatchedNodes(this.$(childNode), ($node) => {
@@ -392,7 +391,7 @@ export class Readability {
 
         $articleContent.find('br').each((_, br) => {
             const $br = this.$(br)
-            let next = nextNode(br.nextSibling)
+            const next = nextNode(br.nextSibling)
             if (next?.tagName == 'p') $br.remove()
         })
 
@@ -437,7 +436,7 @@ export class Readability {
         const $ = this.$
 
         this.log('**** grabArticle ****')
-        let $page = $('body')
+        const $page = $('body')
 
         // We can't grab an article if we don't have a page!
         if (!$page) {
@@ -445,11 +444,12 @@ export class Readability {
             return null
         }
 
-        let pageCacheHtml = $page.html() as string
+        const pageCacheHtml = $page.html() as string
 
+        // tslint:disable-next-line
         while (true) {
             this.log('Starting grabArticle loop')
-            let stripUnlikelyCandidates =
+            const stripUnlikelyCandidates =
                 this.flagIsActive(FLAG_STRIP_UNLIKELYS)
 
             // First, node prepping. Trash nodes that look cruddy (like ones with the
@@ -466,7 +466,7 @@ export class Readability {
                     this.articleLang = $node.attr('lang') || null
                 }
 
-                let matchString = [$node.attr('class'), $node.attr('id')]
+                const matchString = [$node.attr('class'), $node.attr('id')]
                     .filter(Boolean)
                     .join(' ')
 
@@ -505,7 +505,7 @@ export class Readability {
                     ) {
                         this.log(
                             'Removing unlikely candidate',
-                            tagToString(node)
+                            tagToString(node),
                         )
                         $node = removeAndGetNext($node)
                         continue
@@ -515,7 +515,7 @@ export class Readability {
                     if (role && UNLIKELY_ROLES.has(role)) {
                         this.log(
                             `Removing content with role ${role}`,
-                            tagToString(node)
+                            tagToString(node),
                         )
                         $node = removeAndGetNext($node)
                         continue
@@ -566,7 +566,7 @@ export class Readability {
              *
              * A score is determined by things like number of commas, class names, etc. Maybe eventually link density.
              **/
-            let candidates: Candidate[] = []
+            const candidates: Candidate[] = []
             elementsToScore.forEach(($elementToScore) => {
                 const el = $elementToScore[0]!
                 const parentNode = el.parentNode
@@ -621,14 +621,14 @@ export class Readability {
 
             // After we've calculated scores, loop through all of the possible
             // candidate nodes we found and find the one with the highest score.
-            let topCandidates: Candidate[] = []
+            const topCandidates: Candidate[] = []
             for (let c = 0, cl = candidates.length; c < cl; c += 1) {
-                let candidate = candidates[c]!
+                const candidate = candidates[c]!
 
                 // Scale the final candidates score based on link density. Good content
                 // should have a relatively small link density (5% or less) and be mostly
                 // unaffected by this operation.
-                let candidateScore =
+                const candidateScore =
                     candidate.contentScore *
                     (1 - getLinkDensity($, $(candidate)))
                 candidate.contentScore = candidateScore
@@ -659,26 +659,25 @@ export class Readability {
             if (topCandidate === null || topCandidate.tagName === 'body') {
                 // Move all of the page's children into topCandidate
                 const $topCandidate = $('<div></div>').append(
-                    $page.contents()
+                    $page.contents(),
                 ) as Cheerio<Element>
                 $page.append($topCandidate)
                 neededToCreateTopCandidate = true
                 topCandidate = this.addContentScore(
-                    $topCandidate[0] as Candidate
+                    $topCandidate[0] as Candidate,
                 )
             } else if (topCandidate) {
-                debugger
                 // Find a better top candidate node if it contains (at least three) nodes which belong to `topCandidates` array
                 // and whose scores are quite closed with current `topCandidate` node.
-                let alternativeCandidateAncestors: AnyNode[][] = []
+                const alternativeCandidateAncestors: AnyNode[][] = []
 
-                for (var i = 1; i < topCandidates.length; i++) {
+                for (let i = 1; i < topCandidates.length; i++) {
                     const candidate = topCandidates[i]!
                     const threshold =
                         candidate.contentScore / topCandidate!.contentScore
                     if (threshold >= 0.75) {
                         alternativeCandidateAncestors.push(
-                            getNodeAncestors(candidate)
+                            getNodeAncestors(candidate),
                         )
                     }
                 }
@@ -706,14 +705,14 @@ export class Readability {
                             listsContainingThisAncestor += Number(
                                 alternativeCandidateAncestors[
                                     ancestorIndex
-                                ]!.includes(parentOfTopCandidate)
+                                ]!.includes(parentOfTopCandidate),
                             )
                         }
                         if (
                             listsContainingThisAncestor >= MINIMUM_TOPCANDIDATES
                         ) {
                             topCandidate = this.addContentScore(
-                                parentOfTopCandidate as Candidate
+                                parentOfTopCandidate as Candidate,
                             )
                             break
                         }
@@ -731,7 +730,7 @@ export class Readability {
                 parentOfTopCandidate = topCandidate.parentNode
                 let lastScore = topCandidate.contentScore
                 // The scores shouldn't get too low.
-                let scoreThreshold = lastScore / 3
+                const scoreThreshold = lastScore / 3
 
                 // TODO: DRY
                 while (
@@ -766,7 +765,7 @@ export class Readability {
                     $(parentOfTopCandidate).children().length == 1
                 ) {
                     topCandidate = this.addContentScore(
-                        parentOfTopCandidate as Candidate
+                        parentOfTopCandidate as Candidate,
                     )
                     parentOfTopCandidate = topCandidate.parentNode
                 }
@@ -776,9 +775,9 @@ export class Readability {
             // that might also be related. Things like preambles, content split by ads
             // that we removed, etc.
             let $articleContent = $('<div></div>') as Cheerio<Element>
-            let siblingScoreThreshold = Math.max(
+            const siblingScoreThreshold = Math.max(
                 10,
-                topCandidate.contentScore * 0.2
+                topCandidate.contentScore * 0.2,
             )
             // Keep potential top candidate's parent node to try to get text direction of it later.
             parentOfTopCandidate = topCandidate.parentNode
@@ -788,12 +787,12 @@ export class Readability {
 
             for (let s = 0, sl = siblings.length; s < sl; s++) {
                 let append = false
-                let sibling = siblings[s]!
-                let $sibling = $(sibling)
+                const sibling = siblings[s]!
+                const $sibling = $(sibling)
 
                 this.log(
                     `Looking at sibling node: ${tagToString(sibling)}`,
-                    'contentScore' in sibling && sibling?.contentScore
+                    'contentScore' in sibling && sibling?.contentScore,
                 )
 
                 if (sibling === topCandidate) {
@@ -841,7 +840,7 @@ export class Readability {
                         this.log(
                             'Altering sibling:',
                             tagToString(sibling),
-                            'to div.'
+                            'to div.',
                         )
                         sibling.tagName = 'div'
                     }
@@ -977,14 +976,14 @@ export class Readability {
 
                 if (
                     !parsed['@context'] ||
-                    !parsed['@context'].match(/^https?\:\/\/schema\.org\/?$/)
+                    !parsed['@context'].match(/^https?:\/\/schema\.org\/?$/)
                 ) {
                     return
                 }
 
                 if (!parsed['@type'] && Array.isArray(parsed['@graph'])) {
                     parsed = parsed['@graph'].find((it) =>
-                        (it['@type'] || '').match(jsonLdArticleTypes)
+                        (it['@type'] || '').match(jsonLdArticleTypes),
                     )
                 }
 
@@ -1063,7 +1062,7 @@ export class Readability {
     }
 
     private getArticleMetadata(jsonld: Metadata) {
-        let values: any = {}
+        const values: any = {}
 
         const metadata: Metadata = {}
         const $metaElements = this.$('meta')
@@ -1074,7 +1073,7 @@ export class Readability {
 
         // name is a single value
         const namePattern =
-            /^\s*(?:(dc|dcterm|og|twitter|parsely|weibo:(article|webpage))\s*[-\.:]\s*)?(author|creator|pub-date|description|title|site_name)\s*$/i
+            /^\s*(?:(dc|dcterm|og|twitter|parsely|weibo:(article|webpage))\s*[-.:]\s*)?(author|creator|pub-date|description|title|site_name)\s*$/i
 
         // Find description tags.
         $metaElements.each((_, el) => {
@@ -1238,7 +1237,7 @@ export class Readability {
     }
 
     private clean($el: Cheerio<Element>, tag: string) {
-        let isEmbed = ['object', 'embed', 'iframe'].includes(tag)
+        const isEmbed = ['object', 'embed', 'iframe'].includes(tag)
 
         removeNodes($el.find(tag), ($node) => {
             const node = $node[0]!
@@ -1248,7 +1247,7 @@ export class Readability {
                 for (let i = 0; i < node.attributes.length; i++) {
                     if (
                         this.options.allowedVideoRegex.test(
-                            node.attributes[i]!.value
+                            node.attributes[i]!.value,
                         )
                     ) {
                         return false
@@ -1388,7 +1387,7 @@ export class Readability {
             // So, here we check if the data uri is too short, just might as well remove it.
             if (src && b64DataUrl.test(src)) {
                 // Make sure it's not SVG, because SVG can have a meaningful image in under 133 bytes.
-                let parts = b64DataUrl.exec(src)
+                const parts = b64DataUrl.exec(src)
                 if (parts && parts[1] === 'image/svg+xml') {
                     return
                 }
@@ -1459,7 +1458,7 @@ export class Readability {
     }
 
     private getTextDensity($el: Cheerio<Element>, tags: string[]) {
-        let textLength = getInnerText($el, true).length
+        const textLength = getInnerText($el, true).length
         if (textLength === 0) return 0
 
         let childrenLength = 0
@@ -1516,11 +1515,11 @@ export class Readability {
                 isList = listLength / getInnerText($node).length > 0.9
             }
 
-            let weight = this.getClassWeight(node)
+            const weight = this.getClassWeight(node)
 
             this.log('Cleaning Conditionally', tagToString(node))
 
-            let contentScore = 0
+            const contentScore = 0
 
             if (weight + contentScore < 0) {
                 return true
@@ -1532,15 +1531,15 @@ export class Readability {
             // If there are not very many commas, and the number of
             // non-paragraph elements is more than paragraphs or other
             // ominous signs, remove the element.
-            let p = $node.find('p').length
-            let img = $node.find('img').length
-            let li = $node.find('li').length - 100
-            let input = $node.find('input').length
+            const p = $node.find('p').length
+            const img = $node.find('img').length
+            const li = $node.find('li').length - 100
+            const input = $node.find('input').length
             // prettier-ignore
-            let headingDensity = this.getTextDensity($node, [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ])
+            const headingDensity = this.getTextDensity($node, [ 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', ])
 
             let embedCount = 0
-            let $embeds = $node.find('object, embed, iframe')
+            const $embeds = $node.find('object, embed, iframe')
 
             for (let i = 0; i < $embeds.length; i++) {
                 const $embed = $embeds[i]!
@@ -1548,7 +1547,7 @@ export class Readability {
                 for (let j = 0; j < $embed.attributes.length; j++) {
                     if (
                         this.options.allowedVideoRegex.test(
-                            $embed.attributes[j]!.value
+                            $embed.attributes[j]!.value,
                         )
                     ) {
                         return false
@@ -1559,7 +1558,7 @@ export class Readability {
                 if (
                     $embed!.tagName === 'object' &&
                     this.options.allowedVideoRegex.test(
-                        $embeds.eq(i).html() || ''
+                        $embeds.eq(i).html() || '',
                     )
                 ) {
                     return false
@@ -1568,20 +1567,20 @@ export class Readability {
                 embedCount++
             }
 
-            let innerText = getInnerText($node)
+            const innerText = getInnerText($node)
 
             // toss any node whose inner text contains nothing but suspicious words
             if (adWords.test(innerText) || loadingWords.test(innerText)) {
                 return true
             }
 
-            let contentLength = innerText.length
-            let linkDensity = getLinkDensity($, $node)
-            let textishTags = ['span', 'li', 'td'].concat(
-                Array.from(DIV_TO_P_ELEMS)
+            const contentLength = innerText.length
+            const linkDensity = getLinkDensity($, $node)
+            const textishTags = ['span', 'li', 'td'].concat(
+                Array.from(DIV_TO_P_ELEMS),
             )
-            let textDensity = this.getTextDensity($node, textishTags)
-            let isFigureChild = hasAncestorTag(node, 'figure')
+            const textDensity = this.getTextDensity($node, textishTags)
+            const isFigureChild = hasAncestorTag(node, 'figure')
 
             // apply shadiness checks, then check for exceptions
             const shouldRemoveNode = () => {
@@ -1593,7 +1592,7 @@ export class Readability {
 
                 if (!isList && li > p) {
                     errs.push(
-                        `Too many li's outside of a list. (li=${li} > p=${p})`
+                        `Too many li's outside of a list. (li=${li} > p=${p})`,
                     )
                 }
 
@@ -1610,7 +1609,7 @@ export class Readability {
                     linkDensity > 0
                 ) {
                     errs.push(
-                        `Suspiciously short. (headingDensity=${headingDensity}, img=${img}, linkDensity=${linkDensity})`
+                        `Suspiciously short. (headingDensity=${headingDensity}, img=${img}, linkDensity=${linkDensity})`,
                     )
                 }
 
@@ -1620,7 +1619,7 @@ export class Readability {
                     linkDensity > 0.2 + this.options.linkDensityModifier
                 ) {
                     errs.push(
-                        `Low weight and a little linky. (linkDensity=${linkDensity})`
+                        `Low weight and a little linky. (linkDensity=${linkDensity})`,
                     )
                 }
 
@@ -1629,7 +1628,7 @@ export class Readability {
                     linkDensity > 0.5 + this.options.linkDensityModifier
                 ) {
                     errs.push(
-                        `High weight and mostly links. (linkDensity=${linkDensity})`
+                        `High weight and mostly links. (linkDensity=${linkDensity})`,
                     )
                 }
 
@@ -1638,13 +1637,13 @@ export class Readability {
                     embedCount > 1
                 ) {
                     errs.push(
-                        `Suspicious embed. (embedCount=${embedCount}, contentLength=${contentLength})`
+                        `Suspicious embed. (embedCount=${embedCount}, contentLength=${contentLength})`,
                     )
                 }
 
                 if (img === 0 && textDensity === 0) {
                     errs.push(
-                        `No useful content. (img=${img}, textDensity=${textDensity})`
+                        `No useful content. (img=${img}, textDensity=${textDensity})`,
                     )
                 }
 
@@ -1656,18 +1655,18 @@ export class Readability {
                 return false
             }
 
-            let haveToRemove = shouldRemoveNode()
+            const haveToRemove = shouldRemoveNode()
 
             // Allow simple lists of images to remain in pages
             if (isList && haveToRemove) {
                 for (let x = 0; x < $node.children().length; x++) {
-                    let child = $node.children()[x]
+                    const child = $node.children()[x]
                     // Don't filter in lists with li's that contain more than one child
                     if ($(child).children().length > 1) {
                         return haveToRemove
                     }
                 }
-                let li_count = $node.find('li').length
+                const li_count = $node.find('li').length
                 // Only allow the list to remain if every li contains an image
                 if (img === li_count) {
                     return false
@@ -1732,7 +1731,7 @@ export class Readability {
             const numTags = this.$('*').length
             if (numTags > this.options.maxElemsToParse) {
                 throw new Error(
-                    'Aborting parsing document; ' + numTags + ' elements found'
+                    'Aborting parsing document; ' + numTags + ' elements found',
                 )
             }
         }

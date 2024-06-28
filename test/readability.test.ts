@@ -10,7 +10,7 @@ import { Readability, type ReadabilityResult } from '../src/index.js'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import beautify from 'js-beautify'
+import { prettyPrint } from './utils.js'
 
 const testPageRoot = fileURLToPath(new URL('./test-pages', import.meta.url))
 const testPages = readdirSync(testPageRoot)
@@ -30,7 +30,7 @@ function getTestPagesData(dir: string) {
         source: readFile(join(testPageRoot, dir, 'source.html')),
         expectedContent: readFile(join(testPageRoot, dir, 'expected.html')),
         expectedMetadata: readJSON(
-            join(testPageRoot, dir, 'expected-metadata.json')
+            join(testPageRoot, dir, 'expected-metadata.json'),
         ),
     }
 }
@@ -72,21 +72,6 @@ function attributesForNode(node: Element) {
     return node.attributes.map((attr) => `${attr.name}=${attr.value}`).join(',')
 }
 
-function prettyPrint(html: string | null) {
-    if (!html) return null
-
-    return beautify.html(html, {
-        indent_size: 4,
-        indent_char: ' ',
-        indent_level: 0,
-        indent_with_tabs: false,
-        preserve_newlines: false,
-        wrap_line_length: 0,
-        wrap_attributes: 'auto',
-        wrap_attributes_indent_size: 4,
-    })
-}
-
 function inOrderTraverse(fromNode: AnyNode) {
     if (fromNode.type === 'tag' && fromNode.firstChild) {
         return fromNode.firstChild
@@ -113,7 +98,7 @@ function inOrderIgnoreEmptyTextNodes(node: AnyNode | null) {
 function traverseDOM(
     callback: (el1: AnyNode | null, el2: AnyNode | null) => boolean,
     $expected: Cheerio<AnyNode>,
-    $actual: Cheerio<AnyNode>
+    $actual: Cheerio<AnyNode>,
 ) {
     let actualNode = $actual.contents()[0] || null
     let expectedNode = $expected.contents()[0] || null
@@ -136,10 +121,10 @@ function htmlTransform(str: string | null) {
 
 function runTestsWithItems(
     label: string,
-    domGenerationFn: (source: string | null) => CheerioAPI,
+    domGenerationFn: (source: string) => CheerioAPI,
     source: string,
     expectedContent: string,
-    expectedMetadata: Record<string, any>
+    expectedMetadata: ReadabilityResult,
 ) {
     describe(label, () => {
         let result: ReadabilityResult
@@ -157,9 +142,11 @@ function runTestsWithItems(
         })
 
         it('should extract expected content', () => {
-            const $actual = domGenerationFn(prettyPrint(result.content)).root()
+            const $actual = domGenerationFn(
+                prettyPrint(result.content) || '',
+            ).root()
             const $expected = domGenerationFn(
-                prettyPrint(expectedContent)
+                prettyPrint(expectedContent) || '',
             ).root()
 
             traverseDOM(
@@ -171,7 +158,7 @@ function runTestsWithItems(
                         if (actualDesc !== expectedDesc) {
                             expect(
                                 actualDesc,
-                                findableNodeDesc(actualNode)
+                                findableNodeDesc(actualNode),
                             ).eql(expectedDesc)
                             return false
                         }
@@ -183,12 +170,12 @@ function runTestsWithItems(
                         ) {
                             const actualText = htmlTransform(actualNode.data)
                             const expectedText = htmlTransform(
-                                expectedNode.data
+                                expectedNode.data,
                             )
 
                             expect(
                                 actualText,
-                                findableNodeDesc(actualNode)
+                                findableNodeDesc(actualNode),
                             ).eql(expectedText)
 
                             if (actualText !== expectedText) return false
@@ -205,7 +192,7 @@ function runTestsWithItems(
 
                             expect(
                                 actualNode.attributes.length,
-                                `node ${nodeDesc} attributes (${actualNodeDesc}) should match (${expectedNodeDesc})`
+                                `node ${nodeDesc} attributes (${actualNodeDesc}) should match (${expectedNodeDesc})`,
                             ).eql(expectedNode.attributes.length)
 
                             actualNode.attributes.forEach((attr) => {
@@ -215,14 +202,14 @@ function runTestsWithItems(
 
                                 expect(
                                     expectedValue,
-                                    `node (${nodeDesc}) attribute ${attr.name} should match`
+                                    `node (${nodeDesc}) attribute ${attr.name} should match`,
                                 ).eql(attr.value)
                             })
                         }
                     } else {
                         expect(
                             nodeStr(actualNode),
-                            'Should have a node from both DOMs'
+                            'Should have a node from both DOMs',
                         ).eql(nodeStr(expectedNode))
                         return false
                     }
@@ -230,7 +217,7 @@ function runTestsWithItems(
                     return true
                 },
                 $actual,
-                $expected
+                $expected,
             )
         })
 
@@ -271,8 +258,6 @@ function runTestsWithItems(
 }
 
 describe('#parse', () => {
-    const data = getTestPagesData(testPages[0]!)
-
     it("shouldn't parse oversized documents as per configuration", () => {
         const $ = load('<html><div>yo</div></html>')
         expect(() => {
@@ -283,7 +268,7 @@ describe('#parse', () => {
     it('should use custom video regex sent as option', () => {
         const $ = load(
             '<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc mollis leo lacus, vitae semper nisl ullamcorper ut.</p>' +
-                '<iframe src="https://mycustomdomain.com/some-embeds"></iframe>'
+                '<iframe src="https://mycustomdomain.com/some-embeds"></iframe>',
         )
         const expected_xhtml =
             '<div id="readability-page-1" class="page">' +
@@ -307,10 +292,10 @@ describe('Test pages', () => {
 
         runTestsWithItems(
             data.dir,
-            (source) => load(source!, { baseURI: uri }),
+            (source) => load(source, { baseURI: uri }),
             data.source,
             data.expectedContent,
-            data.expectedMetadata
+            data.expectedMetadata,
         )
     })
 })

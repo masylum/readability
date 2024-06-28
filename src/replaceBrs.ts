@@ -14,7 +14,7 @@ import { isWhitespace } from './textUtils.js'
  */
 export function replaceBrs($: CheerioAPI) {
     $('br').each((_, br) => {
-        let $br = $(br)
+        const $br = $(br)
         let next: AnyNode | null = br.nextSibling
 
         // Whether 2 or more <br> elements have been found and replaced with a
@@ -45,7 +45,8 @@ export function replaceBrs($: CheerioAPI) {
         while (next) {
             // If we've hit another <br><br>, we're done adding children to this <p>.
             if (next.type === 'tag' && next.tagName === 'br') {
-                let nextElem = nextNode(next.nextSibling)
+                const nextElem = nextNode(next.nextSibling)
+
                 if (
                     nextElem &&
                     nextElem.type === 'tag' &&

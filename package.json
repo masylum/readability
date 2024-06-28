@@ -7,9 +7,11 @@
     "type": "module",
     "scripts": {
         "lint": "eslint .",
+        "prettier": "prettier --check .",
         "test": "vitest",
         "generate-testcase": "node test/generate-testcase.js",
-        "build": "tsup src/index.ts --format cjs,esm --dts"
+        "build": "tsup src/index.ts --format cjs,esm --dts",
+        "release": "release-it"
     },
     "repository": {
         "type": "git",
@@ -22,14 +24,24 @@
     },
     "homepage": "https://github.com/masylum/readability-cheerio",
     "devDependencies": {
+        "@eslint/js": "^9.5.0",
         "@release-it/keep-a-changelog": "5.0.0",
+        "@types/eslint__js": "^8.42.3",
         "@types/js-beautify": "^1.14.3",
         "@types/node": "^20.14.9",
-        "eslint": "8.27.0",
+        "eslint": "^8.57.0",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-config-standard": "^17.1.0",
+        "eslint-plugin-import": "^2.29.1",
+        "eslint-plugin-n": "^16.6.2",
+        "eslint-plugin-promise": "^6.2.0",
+        "globals": "^15.6.0",
         "htmltidy2": "1.0.0",
         "js-beautify": "1.14.7",
+        "prettier": "3.3.2",
         "release-it": "17.0.1",
         "typescript": "^5.5.2",
+        "typescript-eslint": "^7.14.1",
         "vitest": "^1.6.0"
     },
     "dependencies": {

@@ -8,6 +8,7 @@ import { hasContent } from './regexes.js'
 export const DIV_TO_P_ELEMS = new Set([ 'blockquote', 'dl', 'div', 'img', 'ol', 'p', 'pre', 'table', 'ul', ])
 const TAGS_TO_SIMPLIFY = new Set(['div', 'section'])
 
+// tslint:disable-next-line
 export function isDataTable(t: any) {
     return t._readabilityDataTable
 }
@@ -60,7 +61,7 @@ export function hasSingleTagInsideElement(element: Element, tag: string) {
 
     // And there should be no text nodes with real content
     return !element.childNodes.some(
-        (node) => node.type === 'text' && hasContent.test(node.data)
+        (node) => node.type === 'text' && hasContent.test(node.data),
     )
 }
 

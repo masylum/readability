@@ -10,7 +10,7 @@ export function hasAncestorTag(
     node: AnyNode,
     tagName: string,
     maxDepth: number = 3,
-    filterFn: (node: AnyNode) => boolean = alwaysTrue
+    filterFn: (node: AnyNode) => boolean = alwaysTrue,
 ) {
     let depth = 0
 
@@ -36,7 +36,7 @@ export function getNodeAncestors(node: AnyNode | null, maxDepth: number = 0) {
     if (!node) return []
 
     let i = 0
-    let ancestors: AnyNode[] = []
+    const ancestors: AnyNode[] = []
 
     while (node.parentNode) {
         ancestors.push(node.parentNode)
